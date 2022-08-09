@@ -1,5 +1,5 @@
 {
-    "name": "test",
+    "name": "create-test-boilerplate",
     "description": "A simple starter etc.",
     "bin": {
         "create-test-boilerplate": "./generate-app.js"
