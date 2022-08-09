@@ -1,0 +1,18 @@
+server:
+  port: 8082
+
+com:
+  btc:
+    starter:
+      oauth2-bff:
+        btc-identity-client-url: http://localhost:8080
+        btc-identity-redirect-path: /api/login/callback
+        btc-identity-authorize-uri: /api/oauth2/authorization
+
+spring:
+  cloud:
+    vault:
+      token: 00000000-0000-0000-0000-000000000000
+      uri: http://vault:8200
+  config:
+    import: vault://secret/btc

@@ -1,0 +1,129 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version "2.7.0"
+    id 'io.spring.dependency-management' version "1.0.11.RELEASE"
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.4"
+    id "com.github.spotbugs" version "5.0.7"
+    id "net.ltgt.errorprone" version "2.0.2"
+    id "org.myire.quill.cpd" version "3.2"
+    id 'pmd'
+    id 'checkstyle'
+    id 'jacoco'
+}
+
+group 'com.cs'
+version '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://artifactory.clearslideng.com/artifactory/jar-dev" } // optional, only for snapshots
+    maven { url "https://artifactory.clearslideng.com/artifactory/jar-release" }
+}
+
+ext {
+    errorproneVersion = '2.14.0'
+    csActuatorStarterVersion = "1.0.1"
+    btcOauth2IdentityStarterVersion = '1.0.2-SNAPSHOT'
+}
+
+dependencies {
+    spotbugs 'com.github.spotbugs:spotbugs:4.7.0'
+    errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
+    // suppress spotbugs bug https://github.com/spotbugs/spotbugs-gradle-plugin/issues/136
+    // probably there is another bug with 'java.lang.invoke.StringConcatFactory' class
+    spotbugsSlf4j "org.slf4j:slf4j-simple:1.7.32"
+
+    implementation "com.btc:btc-spring-boot-starter-identity-oauth2-bff:${btcOauth2IdentityStarterVersion}"
+
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+
+    implementation "com.cs:cs-spring-boot-starter-actuator:${csActuatorStarterVersion}"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:0.22.0'
+}
+
+tasks.register('installGitHook', Copy) {
+    version 1
+    from 'hooks/pre-commit'
+    into '.git/hooks'
+    fileMode 0700
+}
+
+idea.project.settings {
+    taskTriggers {
+        beforeSync tasks.getByName("installGitHook")
+    }
+}
+
+spotbugs {
+    ignoreFailures = true
+    showStackTraces = true
+    effort = 'default'
+    reportLevel = 'default'
+    omitVisitors = ['FindReturnRef', 'ThrowingExceptions']
+}
+
+pmd {
+    consoleOutput = true
+    ignoreFailures = true
+    ruleSets = ["pmdRules.xml"]
+}
+
+test {
+    useJUnitPlatform()
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+}
+
+bootJar {
+    if (System.getProperty("env") == 'DEV') {
+        classpath configurations.developmentOnly // we need this to enable Spring Boot Remote in Docker
+    }
+}
+
+jar {
+    enabled = false
+}
+
+checkstyle {
+    ignoreFailures = true
+    maxWarnings = 0
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.errorprone.disableWarningsInGeneratedCode = true
+    options.errorprone.enabled = true
+    options.errorprone.disable('SameNameButDifferent')
+    options.errorprone.disable('JavaTimeDefaultTimeZone')
+    options.errorprone.disable('MissingSummary')
+    options.errorprone.disable('EqualsGetClass')
+    options.errorprone.disable('UnusedMethod')
+}
+
+task fetchDependencies {
+    doLast {
+        configurations
+                .findAll { c -> c.isCanBeResolved() }
+                .each { c -> c.resolve() }
+    }
+}
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet') // hide messages about javadoc is missed
+}
