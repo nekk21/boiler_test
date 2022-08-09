@@ -1,7 +1,7 @@
 {
     "name": "test",
     "bin": {
-        "create-boilerplate": "./generate-app.js"
+        "create-test-boilerplate": "./generate-app.js"
     },
     "dependencies": {
         "rimraf": "^3.0.2"
