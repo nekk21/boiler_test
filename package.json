@@ -1,8 +1,14 @@
 {
     "name": "test",
+    "description": "A simple starter etc.",
     "bin": {
         "create-test-boilerplate": "./generate-app.js"
     },
+    "repository": {
+        "type": "git",
+        "url": "'https://github.com/nekk21/test.git'"
+    },
+    "license": "MIT",
     "dependencies": {
         "rimraf": "^3.0.2"
     }
