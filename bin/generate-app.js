@@ -30,7 +30,7 @@ if (process.argv.length < 3) {
 const ownPath = process.cwd();
 const folderName = process.argv[2];
 const appPath = path.join(ownPath, folderName);
-const repo = 'https://github.com/Leopold-V/react-parcel-app.git';
+const repo = 'https://github.com/nekk21/test.git';
 
 try {
   fs.mkdirSync(appPath);
