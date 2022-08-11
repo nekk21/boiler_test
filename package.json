@@ -5,12 +5,6 @@
   "bin": {
     "create-test-boilerplate": "./bin/generate-app.js"
   },
-  "keywords": [
-    "react",
-    "parcel",
-    "boilerplate",
-    "starter"
-  ],
   "author": "",
   "license": "MIT",
   "homepage": "https://github.com/nekk21/test",

@@ -89,11 +89,9 @@ setup();
 function buildPackageJson(packageJson, folderName) {
   const {
     bin,
-    keywords,
     license,
     homepage,
     repository,
-    bugs,
     ...newPackage
   } = packageJson;
 
